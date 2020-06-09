@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 items:
 - apiVersion: v1
@@ -5,7 +6,7 @@ items:
     postgres-password: Q3FrWThJZHFFYw==
   kind: Secret
   metadata:
-    creationTimestamp: null
+    creationTimestamp:
     labels:
       app: postgresql
       chart: postgresql-0.15.0
@@ -16,7 +17,7 @@ items:
 - apiVersion: v1
   kind: ConfigMap
   metadata:
-    creationTimestamp: null
+    creationTimestamp:
     labels:
       app: postgresql
       chart: postgresql-0.15.0
@@ -26,7 +27,7 @@ items:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    creationTimestamp: null
+    creationTimestamp:
     labels:
       app: postgresql
       chart: postgresql-0.15.0
@@ -45,7 +46,7 @@ items:
 - apiVersion: v1
   kind: Service
   metadata:
-    creationTimestamp: null
+    creationTimestamp:
     labels:
       app: postgresql
       chart: postgresql-0.15.0
@@ -68,7 +69,7 @@ items:
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
-    creationTimestamp: null
+    creationTimestamp:
     labels:
       app: postgresql
       chart: postgresql-0.15.0
@@ -87,7 +88,7 @@ items:
       type: Recreate
     template:
       metadata:
-        creationTimestamp: null
+        creationTimestamp:
         labels:
           app: postgresql
           release: kds
@@ -113,7 +114,7 @@ items:
               fieldRef:
                 apiVersion: v1
                 fieldPath: status.podIP
-          image: postgres:9.6.2
+          image: postgres:13-alpine
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:
