@@ -1,147 +1,166 @@
-
----
-# Source: postgresql/templates/secrets.yaml
 apiVersion: v1
-kind: Secret
-metadata:
-  name: kds-postgresql
-  labels:
-    app: postgresql
-    chart: postgresql-0.15.0
-    release: kds
-    heritage: Tiller
-type: Opaque
-data:
-
-  postgres-password: "Q3FrWThJZHFFYw=="
----
-# Source: postgresql/templates/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kds-postgresql
-  labels:
-    app: postgresql
-    chart: postgresql-0.15.0
-    release: kds
-    heritage: Tiller
-data:
----
-# Source: postgresql/templates/pvc.yaml
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: kds-postgresql
-  labels:
-    app: postgresql
-    chart: postgresql-0.15.0
-    release: kds
-    heritage: Tiller
-spec:
-  accessModes:
-    - "ReadWriteOnce"
-  resources:
-    requests:
-      storage: "8Gi"
----
-# Source: postgresql/templates/svc.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: kds-postgresql
-  labels:
-    app: postgresql
-    chart: postgresql-0.15.0
-    release: kds
-    heritage: Tiller
-spec:
-  type: ClusterIP
-  ports:
-  - name: postgresql
-    port: 5432
-    targetPort: postgresql
-  selector:
-    app: postgresql
-    release: kds
----
-# Source: postgresql/templates/deployment.yaml
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: kds-postgresql
-  labels:
-    app: postgresql
-    chart: postgresql-0.15.0
-    release: kds
-    heritage: Tiller
-spec:
-  selector:
-    matchLabels:
+items:
+- apiVersion: v1
+  data:
+    postgres-password: Q3FrWThJZHFFYw==
+  kind: Secret
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: postgresql
+      chart: postgresql-0.15.0
+      heritage: Tiller
+      release: kds
+    name: kds-postgresql
+  type: Opaque
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: postgresql
+      chart: postgresql-0.15.0
+      heritage: Tiller
+      release: kds
+    name: kds-postgresql
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: postgresql
+      chart: postgresql-0.15.0
+      heritage: Tiller
+      release: kds
+    name: kds-postgresql
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 8Gi
+    volumeMode: Filesystem
+  status:
+    phase: Pending
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: postgresql
+      chart: postgresql-0.15.0
+      heritage: Tiller
+      release: kds
+    name: kds-postgresql
+  spec:
+    ports:
+    - name: postgresql
+      port: 5432
+      protocol: TCP
+      targetPort: postgresql
+    selector:
       app: postgresql
       release: kds
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: postgresql
+      chart: postgresql-0.15.0
+      heritage: Tiller
+      release: kds
+    name: kds-postgresql
+  spec:
+    progressDeadlineSeconds: 2147483647
+    replicas: 1
+    revisionHistoryLimit: 2147483647
+    selector:
+      matchLabels:
         app: postgresql
         release: kds
-    spec:
-      containers:
-      - name: kds-postgresql
-        image: "postgres:9.6.2"
-        imagePullPolicy: ""
-        args:
-        env:
-        - name: POSTGRES_USER
-          value: "postgres"
-          # Required for pg_isready in the health probes.
-        - name: PGUSER
-          value: "postgres"
-        - name: POSTGRES_DB
-          value: "users"
-        - name: POSTGRES_INITDB_ARGS
-          value: ""
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: kds-postgresql
-              key: postgres-password
-        - name: POD_IP
-          valueFrom: { fieldRef: { fieldPath: status.podIP } }
-        ports:
-        - name: postgresql
-          containerPort: 5432
-        livenessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - exec pg_isready --host $POD_IP
-          initialDelaySeconds: 60
-          timeoutSeconds: 5
-          failureThreshold: 6
-        readinessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - exec pg_isready --host $POD_IP
-          initialDelaySeconds: 5
-          timeoutSeconds: 3
-          periodSeconds: 5
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-
-        volumeMounts:
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: postgresql
+          release: kds
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_USER
+            value: postgres
+          - name: PGUSER
+            value: postgres
+          - name: POSTGRES_DB
+            value: users
+          - name: POSTGRES_INITDB_ARGS
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: postgres-password
+                name: kds-postgresql
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: postgres:9.6.2
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec pg_isready --host $POD_IP
+            failureThreshold: 6
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: kds-postgresql
+          ports:
+          - containerPort: 5432
+            name: postgresql
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec pg_isready --host $POD_IP
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data/pgdata
+            name: data
+            subPath: postgresql-db
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
         - name: data
-          mountPath: /var/lib/postgresql/data/pgdata
-          subPath: postgresql-db
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: kds-postgresql
+          persistentVolumeClaim:
+            claimName: kds-postgresql
+  status: {}
+kind: List
+metadata: {}
