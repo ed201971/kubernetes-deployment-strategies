@@ -11,6 +11,9 @@ spec:
   # This is to prevent a service that crashes on startup from getting rolled
   # out to all replicas. Set maxUnavailable to 0 and maxSurge to 1 to enable
   # a quasi-canary style deployment.
+  selector:
+    matchLabels:
+      name: kds-service 
   minReadySeconds: 10
   strategy:
     rollingUpdate:
