@@ -3,6 +3,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kds-service
+  annotations:
+    flux.weave.works/automated: 'true'
 spec:
   replicas: 3
   revisionHistoryLimit: 2
@@ -13,7 +15,7 @@ spec:
   # a quasi-canary style deployment.
   selector:
     matchLabels:
-      name: kds-service 
+      name: kds-service
   minReadySeconds: 10
   strategy:
     rollingUpdate:
