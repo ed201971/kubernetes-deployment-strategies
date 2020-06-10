@@ -1,0 +1,1 @@
+{"jobID":"b03d5ab4-69dd-8a71-a7cb-67533d1f0e1e","spec":{"type":"policy","cause":{"Message":"","User":"Edward Butler \u003cted@naxxus.net\u003e"},"spec":{"default:deployment/kds-service":{"add":{"automated":"true"},"remove":null}}},"result":null}
